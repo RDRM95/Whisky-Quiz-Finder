@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Laphroaig - Expression Finder</title>
+    
+    <!-- STYLES -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, serif;
+            background-color: #1a1a1a;
+            color: #f5f5f5;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            width: 90%;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            border: 1px solid #2a4a2a;
+            border-radius: 2px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 50px;
+            border-bottom: 2px solid #2a4a2a;
+            padding-bottom: 30px;
+        }
+
+        .brand-header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .brand-header .tagline {
+            font-size: 1rem;
+            color: #7aa876;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .question-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .question-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            color: #7aa876;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .answer-btn {
+            background: transparent;
+            border: 1px solid #3a5a3a;
+            color: #f5f5f5;
+            padding: 20px 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-family: Georgia, serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .answer-btn:hover {
+            background-color: #2a4a2a;
+            border-color: #7aa876;
+            transform: translateX(5px);
+        }
+
+        .answer-btn:active {
+            transform: translateX(3px);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background-color: #2a2a2a;
+            margin-bottom: 50px;
+            position: relative;
+            border-radius: 3px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #7aa876;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 3px;
+        }
+
+        .result-section {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .whisky-name {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #7aa876;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .tasting-note {
+            font-size: 1.2rem;
+            font-style: italic;
+            margin-bottom: 30px;
+            color: #d5d5d5;
+            line-height: 1.6;
+        }
+
+        .why-match {
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            padding: 30px;
+            background-color: rgba(42, 74, 42, 0.2);
+            border-left: 3px solid #7aa876;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #7aa876;
+            color: #0d0d0d;
+            padding: 15px 40px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background-color: #5a8856;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(122, 168, 118, 0.3);
+        }
+
+        .restart-btn {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid #3a5a3a;
+            color: #f5f5f5;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            border-color: #7aa876;
+            color: #7aa876;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 40px 20px;
+            }
+            
+            .question-text {
+                font-size: 1.4rem;
+            }
+            
+            .whisky-name {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="brand-header">
+            <h1>LAPHROAIG</h1>
+            <p class="tagline">Find Your Expression</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Question 1 -->
+        <div class="question-section active" data-question="1">
+            <p class="question-number">Question 1 of 6</p>
+            <h2 class="question-text">What kind of smoky experience are you after?</h2>
+            <div class="answers">
+                <button class="answer-btn" data-answer="A">Full smoke assault - I want my palate challenged</button>
+                <button class="answer-btn" data-answer="B">Smoke with sweetness - balance the bonfire with honey</button>
+                <button class="answer-btn" data-answer="C">Smoke with sophistication - aged complexity over raw power</button>
+                <button class="answer-btn" data-answer="D">Gentle smoke - I'm peat-curious, not peat-obsessed</button>
+            </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="question-section" data-question="2">
+            <p class="question-number">Question 2 of 6</p>
+            <h2 class="question-text">How much peat can you handle?</h2>
+            <div class="answers">
+                <button class="answer-btn" data-answer="A">Maximum peat - bring the medicinal, the iodine, the bonfire</button>
+                <button class="answer-btn" data-answer="B">Classic Islay peat - bold but refined</button>
+                <button class="answer-btn" data-answer="C">Moderate peat - present but not overwhelming</button>
+                <button class="answer-btn" data-answer="D">Subtle peat - just a whisper of smoke</button>
+            </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="question-section" data-question="3">
+            <p class="question-number">Question 3 of 6</p>
+            <h2 class="question-text">How do you take your dram?</h2>
+            <div class="answers">
+                <button class="answer-btn" data-answer="A">Cask strength - uncut, unfiltered, uncompromising</button>
+                <button class="answer-btn" data-answer="B">Higher proof - more punch than standard</button>
+                <button class="answer-btn" data-answer="C">Standard strength - perfectly balanced as intended</button>
+                <button class="answer-btn" data-answer="D">Smooth and approachable - easy drinking</button>
+            </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="question-section" data-question="4">
+            <p class="question-number">Question 4 of 6</p>
+            <h2 class="question-text">What's your oak preference?</h2>
+            <div class="answers">
+                <button class="answer-btn" data-answer="A">Young and wild - minimal oak, maximum spirit character</button>
+                <button class="answer-btn" data-answer="B">Perfect balance - some oak sweetness, plenty of vigor</button>
+                <button class="answer-btn" data-answer="C">Well-aged depth - long maturation, complex layers</button>
+                <button class="answer-btn" data-answer="D">Ancient wisdom - decades in the cask</button>
+            </div>
+        </div>
+
+        <!-- Question 5 -->
+        <div class="question-section" data-question="5">
+            <p class="question-number">Question 5 of 6</p>
+            <h2 class="question-text">Interested in cask finishes?</h2>
+            <div class="answers">
+                <button class="answer-btn" data-answer="A">Traditional only - ex-bourbon or nothing</button>
+                <button class="answer-btn" data-answer="B">Sherry casks - PX or Oloroso for sweetness</button>
+                <button class="answer-btn" data-answer="C">Wine casks - Port or other wine influences</button>
+                <button class="answer-btn" data-answer="D">Experimental - surprise me with unusual casks</button>
+            </div>
+        </div>
+
+        <!-- Question 6 -->
+        <div class="question-section" data-question="6">
+            <p class="question-number">Question 6 of 6</p>
+            <h2 class="question-text">What's your whisky budget comfort zone?</h2>
+            <div class="answers">
+                <button class="answer-btn" data-answer="A">Daily dram (£40-60)</button>
+                <button class="answer-btn" data-answer="B">Weekend treat (£60-100)</button>
+                <button class="answer-btn" data-answer="C">Special occasion (£100-200)</button>
+                <button class="answer-btn" data-answer="D">Once in a lifetime (£200+)</button>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="result-section" id="resultSection">
+            <h2 class="whisky-name" id="whiskyName">Your Match</h2>
+            <p class="tasting-note" id="tastingNote">Tasting notes will appear here</p>
+            <div class="why-match" id="whyMatch">Why this matches you</div>
+            <button class="cta-button" id="ctaButton">Explore This Bottle</button>
+            <br>
+            <button class="restart-btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        let currentQuestion = 1;
+        const totalQuestions = 6;
+        const answers = {};
+
+        // Whisky database with characteristics
+        const whiskies = {
+            'laphroaig10': {
+                name: 'Laphroaig 10 Year Old',
+                tasting: 'Bold peat smoke, seaweed, vanilla sweetness, and a hint of salt carried on a full body.',
+                profiles: {
+                    1: { A: 3, B: 2, C: 1, D: 0 },
+                    2: { A: 3, B: 3, C: 1, D: 0 },
+                    3: { A: 0, B: 1, C: 3, D: 2 },
+                    4: { A: 3, B: 3, C: 1, D: 0 },
+                    5: { A: 3, B: 0, C: 0, D: 0 },
+                    6: { A: 3, B: 0, C: 0, D: 0 }
+                }
+            },
+            'laphroaig10sherry': {
+                name: 'Laphroaig 10 Sherry Oak',
+                tasting: 'Classic Laphroaig smoke wrapped in sweet Oloroso sherry notes of dried fruits and Christmas spices.',
+                profiles: {
+                    1: { A: 2, B: 3, C: 1, D: 0 },
+                    2: { A: 3, B: 3, C: 1, D: 0 },
+                    3: { A: 0, B: 1, C: 3, D: 2 },
+                    4: { A: 1, B: 3, C: 2, D: 0 },
+                    5: { A: 0, B: 3, C: 0, D: 1 },
+                    6: { A: 3, B: 1, C: 0, D: 0 }
+                }
+            },
+            'quarterCask': {
+                name: 'Laphroaig Quarter Cask',
+                tasting: 'Double matured in quarter casks for intense flavors - amplified peat, coconut, and banana with a velvety texture.',
+                profiles: {
+                    1: { A: 3, B: 1, C: 1, D: 0 },
+                    2: { A: 3, B: 2, C: 1, D: 0 },
+                    3: { A: 1, B: 3, C: 2, D: 0 },
+                    4: { A: 3, B: 2, C: 0, D: 0 },
+                    5: { A: 3, B: 0, C: 0, D: 1 },
+                    6: { A: 0, B: 3, C: 1, D: 0 }
+                }
+            },
+            'select': {
+                name: 'Laphroaig Select',
+                tasting: 'Softer and sweeter with notes of coconut, green apple, and gentle smoke - Laphroaig\'s approachable side.',
+                profiles: {
+                    1: { A: 0, B: 2, C: 1, D: 3 },
+                    2: { A: 0, B: 1, C: 2, D: 3 },
+                    3: { A: 0, B: 0, C: 2, D: 3 },
+                    4: { A: 1, B: 3, C: 1, D: 0 },
+                    5: { A: 3, B: 0, C: 1, D: 1 },
+                    6: { A: 3, B: 1, C: 0, D: 0 }
+                }
+            },
+            'lore': {
+                name: 'Laphroaig Lore',
+                tasting: 'The richest Laphroaig - layers of ash, dark chocolate, chili spice, and sweet smoke from multiple cask types.',
+                profiles: {
+                    1: { A: 1, B: 2, C: 3, D: 0 },
+                    2: { A: 2, B: 3, C: 2, D: 0 },
+                    3: { A: 0, B: 2, C: 3, D: 1 },
+                    4: { A: 0, B: 1, C: 3, D: 2 },
+                    5: { A: 2, B: 1, C: 1, D: 3 },
+                    6: { A: 0, B: 0, C: 3, D: 1 }
+                }
+            },
+            'caskStrength': {
+                name: 'Laphroaig Cask Strength Batch 17',
+                tasting: 'Uncut Islay intensity with waves of medicinal peat, sea spray, and vanilla sweetness at 57.3% ABV.',
+                profiles: {
+                    1: { A: 3, B: 0, C: 1, D: 0 },
+                    2: { A: 3, B: 2, C: 0, D: 0 },
+                    3: { A: 3, B: 2, C: 0, D: 0 },
+                    4: { A: 3, B: 3, C: 0, D: 0 },
+                    5: { A: 3, B: 0, C: 0, D: 1 },
+                    6: { A: 0, B: 3, C: 3, D: 0 }
+                }
+            },
+            'fourOak': {
+                name: 'Laphroaig Four Oak',
+                tasting: 'Matured in four different oak types creating complex layers of smoke, toffee, tropical fruits, and spice.',
+                profiles: {
+                    1: { A: 1, B: 2, C: 3, D: 0 },
+                    2: { A: 1, B: 3, C: 2, D: 0 },
+                    3: { A: 0, B: 3, C: 3, D: 1 },
+                    4: { A: 0, B: 3, C: 2, D: 0 },
+                    5: { A: 1, B: 0, C: 1, D: 3 },
+                    6: { A: 0, B: 3, C: 1, D: 0 }
+                }
+            },
+            'pxCask': {
+                name: 'Laphroaig PX Cask',
+                tasting: 'Pedro Ximénez sherry cask finish adds rich sweetness of dates and figs to the classic peat smoke.',
+                profiles: {
+                    1: { A: 0, B: 3, C: 2, D: 0 },
+                    2: { A: 1, B: 3, C: 2, D: 0 },
+                    3: { A: 0, B: 1, C: 3, D: 1 },
+                    4: { A: 0, B: 3, C: 2, D: 0 },
+                    5: { A: 0, B: 3, C: 1, D: 1 },
+                    6: { A: 0, B: 3, C: 1, D: 0 }
+                }
+            },
+            'portwood': {
+                name: 'Laphroaig Portwood',
+                tasting: 'Ruby Port casks add berry sweetness and gentle tannins to complement the maritime peat character.',
+                profiles: {
+                    1: { A: 0, B: 3, C: 2, D: 0 },
+                    2: { A: 0, B: 2, C: 3, D: 0 },
+                    3: { A: 0, B: 1, C: 3, D: 1 },
+                    4: { A: 0, B: 3, C: 2, D: 0 },
+                    5: { A: 0, B: 1, C: 3, D: 1 },
+                    6: { A: 0, B: 3, C: 1, D: 0 }
+                }
+            },
+            'elements2': {
+                name: 'Laphroaig Elements 2.0',
+                tasting: 'Experimental cask combination delivers unexpected notes of tropical fruits, herbs, and evolving smoke.',
+                profiles: {
+                    1: { A: 2, B: 1, C: 3, D: 0 },
+                    2: { A: 3, B: 3, C: 1, D: 0 },
+                    3: { A: 1, B: 3, C: 1, D: 0 },
+                    4: { A: 0, B: 3, C: 2, D: 0 },
+                    5: { A: 0, B: 0, C: 1, D: 3 },
+                    6: { A: 0, B: 0, C: 3, D: 1 }
+                }
+            },
+            'cairdeas2025': {
+                name: 'Laphroaig Cairdeas 2025 (Lore Cask Strength)',
+                tasting: 'Lore\'s complexity at cask strength - an explosive combination of smoke, spice, and multi-cask richness.',
+                profiles: {
+                    1: { A: 2, B: 1, C: 3, D: 0 },
+                    2: { A: 3, B: 2, C: 1, D: 0 },
+                    3: { A: 3, B: 2, C: 0, D: 0 },
+                    4: { A: 0, B: 1, C: 3, D: 1 },
+                    5: { A: 1, B: 1, C: 1, D: 3 },
+                    6: { A: 0, B: 0, C: 3, D: 2 }
+                }
+            },
+            'twentyFive': {
+                name: 'Laphroaig 25 Year Old',
+                tasting: 'Quarter century maturation transforms fierce peat into elegant smoke with leather, dark fruits, and coastal minerals.',
+                profiles: {
+                    1: { A: 0, B: 1, C: 3, D: 1 },
+                    2: { A: 0, B: 1, C: 3, D: 2 },
+                    3: { A: 0, B: 0, C: 3, D: 2 },
+                    4: { A: 0, B: 0, C: 1, D: 3 },
+                    5: { A: 3, B: 0, C: 0, D: 1 },
+                    6: { A: 0, B: 0, C: 0, D: 3 }
+                }
+            },
+            'thirty': {
+                name: 'Laphroaig 30 Year Old',
+                tasting: 'Three decades of maturation reveal notes of leather, dark chocolate, sea-aged oak, and wisps of elegant smoke.',
+                profiles: {
+                    1: { A: 0, B: 0, C: 3, D: 2 },
+                    2: { A: 0, B: 0, C: 3, D: 3 },
+                    3: { A: 0, B: 0, C: 3, D: 2 },
+                    4: { A: 0, B: 0, C: 0, D: 3 },
+                    5: { A: 3, B: 0, C: 0, D: 1 },
+                    6: { A: 0, B: 0, C: 0, D: 3 }
+                }
+            }
+        };
+
+        // Match reasons database
+        const matchReasons = {
+            'laphroaig10': 'You appreciate authentic Islay character without compromise - this is Laphroaig\'s signature expression, delivering pure peat power and coastal intensity that defines the distillery.',
+            'laphroaig10sherry': 'You want the best of both worlds - Islay smoke balanced with Spanish sweetness. This expression marries Laphroaig\'s medicinal peat with rich sherry influence perfectly.',
+            'quarterCask': 'You\'re looking for intensity and innovation - the smaller casks supercharge the maturation, creating a more powerful, concentrated dram that punches above its age.',
+            'select': 'You\'re peat-curious but want an approachable entry point - this is Laphroaig with the volume turned down, letting you explore Islay character without overwhelming your palate.',
+            'lore': 'You seek complexity and depth - this is Laphroaig\'s most diverse expression, marrying multiple cask types to create layers of flavor that reveal themselves with each sip.',
+            'caskStrength': 'You want maximum peat power without compromise - this is Laphroaig at its most intense and authentic, straight from the cask with nothing held back.',
+            'fourOak': 'You appreciate craftsmanship and innovation - four different oak types create a symphony of flavors, showing how wood can transform and enhance Laphroaig\'s spirit.',
+            'pxCask': 'You love the interplay of smoke and sweetness - the Pedro Ximénez finish adds luxurious dried fruit notes that complement rather than mask the peat.',
+            'portwood': 'You enjoy exploring how wine casks can transform whisky - the ruby Port influence adds berry sweetness and subtle tannins to Laphroaig\'s maritime character.',
+            'elements2': 'You\'re an adventurous drinker who values innovation - this experimental release pushes boundaries and challenges expectations of what Laphroaig can be.',
+            'cairdeas2025': 'You want the ultimate Laphroaig experience - combining Lore\'s complexity with cask strength power, this limited edition represents the pinnacle of the distillery\'s craft.',
+            'twentyFive': 'You appreciate how time transforms whisky - decades in oak have mellowed the peat into sophisticated smoke, creating an elegant dram that whispers rather than shouts.',
+            'thirty': 'You seek the pinnacle of aged Islay whisky - three decades of patient maturation have created liquid gold, where fierce peat has evolved into gentle sophistication.'
+        };
+
+        // Event listeners
+        document.querySelectorAll('.answer-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const answer = this.dataset.answer;
+                answers[currentQuestion] = answer;
+                
+                if (currentQuestion < totalQuestions) {
+                    nextQuestion();
+                } else {
+                    showResult();
+                }
+            });
+        });
+
+        function nextQuestion() {
+            document.querySelector(`[data-question="${currentQuestion}"]`).classList.remove('active');
+            currentQuestion++;
+            document.querySelector(`[data-question="${currentQuestion}"]`).classList.add('active');
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = (currentQuestion / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function calculateMatch() {
+            let scores = {};
+            
+            // Initialize scores for all whiskies
+            for (let whisky in whiskies) {
+                scores[whisky] = 0;
+            }
+            
+            // Calculate scores based on answers
+            for (let question in answers) {
+                const answer = answers[question];
+                for (let whisky in whiskies) {
+                    const profile = whiskies[whisky].profiles[question];
+                    scores[whisky] += profile[answer] || 0;
+                }
+            }
+            
+            // Find the highest scoring whisky
+            let topWhisky = null;
+            let topScore = -1;
+            
+            for (let whisky in scores) {
+                if (scores[whisky] > topScore) {
+                    topScore = scores[whisky];
+                    topWhisky = whisky;
+                }
+            }
+            
+            return topWhisky;
+        }
+
+        function showResult() {
+            const match = calculateMatch();
+            const whisky = whiskies[match];
+            
+            document.getElementById('whiskyName').textContent = whisky.name;
+            document.getElementById('tastingNote').textContent = whisky.tasting;
+            document.getElementById('whyMatch').textContent = matchReasons[match];
+            
+            document.querySelector('.question-section.active').classList.remove('active');
+            document.getElementById('resultSection').classList.add('active');
+            updateProgress();
+        }
+
+        function restartQuiz() {
+            currentQuestion = 1;
+            for (let key in answers) delete answers[key];
+            
+            document.getElementById('resultSection').classList.remove('active');
+            document.querySelectorAll('.question-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelector('[data-question="1"]').classList.add('active');
+            
+            updateProgress();
+        }
+
+        // Initialize progress
+        updateProgress();
+    </script>
+</body>
+</html>
